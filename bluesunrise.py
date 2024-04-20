@@ -4,7 +4,7 @@ from telebot import types
 from telebot.types import Message
 import logging
 from gpt import GPT
-#from database import create_table, execute_query, create_db
+
 
 token = ""
 bot = telebot.TeleBot(token)
@@ -55,9 +55,7 @@ def start(message: Message):
                                       "За ущерб, нанесённый этим данным, компания ответственности не несёт 🤷‍♂️.",
                      reply_markup=make_keyboard(["Решить"]))
     bot.register_next_step_handler(message, solve_task)
-    #current_options[message.from_user.id] = {"subject": "",
-                                            # "level": ""
-                                            # }
+    
     users["id"] = str(message.from_user.id)
 
 @bot.message_handler(commands=['help'])
@@ -80,24 +78,24 @@ def about(message: Message):
 
 @bot.message_handler(content_types=["text"], func=solve)
 def solve_task(message: Message):
-    #global current_options
+    
     logging.debug("Пользователь начинает обращение к боту")
     bot.send_message(message.chat.id, "Выберите предмет 🙂:", reply_markup=make_keyboard(["математика", "физика"]))
     bot.register_next_step_handler(message, choose_subject)
 
 
 def choose_subject(message):
-    #global current_options
+    
     bot.send_message(message.chat.id, "Выберите уровень ответа:", reply_markup=make_keyboard(["лёгкий", "продвинутый"]))
     bot.register_next_step_handler(message, choose_level)
-    #current_options[message.from_user.id]["subject"] = message.text
+    
     users["subject"] = message.text
 
 def choose_level(message):
-    #global current_options
+   
     bot.send_message(message.chat.id, "Напишите ваш запрос")
     bot.register_next_step_handler(message, get_promt)
-    #current_options[message.from_user.id]["level"] = message.text
+    
     users["level"] = message.text
 
 def continue_filter(message: Message):
@@ -108,8 +106,7 @@ def continue_filter(message: Message):
 # Получение задачи от пользователя или продолжение решения
 @bot.message_handler(func=continue_filter)
 def get_promt(message):
-    #cur_level = "простой"
-    #cur_subject = "математика"
+    
     global current_options
     logging.debug("Пользователь отправил запрос")
     user_id = message.from_user.id
@@ -131,11 +128,7 @@ def get_promt(message):
         #return
 
     if user_id not in user_history or user_history[user_id] == {}:
-        #if user_id not in current_options or current_options[user_id]["subject"] not in ["математика", "физика"] or \
-               # current_options[user_id]["level"] in ["простой", "сложный"]:
-            #bot.send_message(user_id, "Ошибка! Ты либо не выбрал нужный уровень/предмет, либо твоя личность не опознана.")
-            #start(message)
-            #return
+       
         if users["subject"] not in ["математика", "физика"]:
             bot.send_message(user_id, "Ты не ввёл предмет, начинаем сначала.")
             start(message)
@@ -143,9 +136,7 @@ def get_promt(message):
             bot.send_message(user_id, "Ты не ввёл уровень, начинаем сначала.")
             start(message)
 
-        #cur_subject = current_options[user_id]["subject"][:-1] + "е"
-        #if current_options[user_id]["level"] in ["простой", "сложный"]:
-        #cur_level = current_options[user_id]["level"][:-2] + "ым"
+        
 
 
         # Сохраняем промт пользователя и начало ответа GPT в словарик users_history
